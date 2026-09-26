@@ -2,61 +2,52 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>صندوق پیام آبتین</title>
+    <title>پنل پیام</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-950 text-white min-h-screen p-6">
-    <div class="max-w-md mx-auto space-y-6">
-        <h1 class="text-xl font-bold text-center">مدیریت پیام‌ها</h1>
+<body class="bg-black text-white p-6">
+    <div class="max-w-md mx-auto space-y-4">
+        <input id="user" placeholder="نام کاربری" class="w-full p-2 bg-gray-900 border rounded">
+        <input id="pass" type="password" placeholder="رمز عبور" class="w-full p-2 bg-gray-900 border rounded">
+        <textarea id="msg" placeholder="متن پیام..." class="w-full p-2 bg-gray-900 border rounded"></textarea>
         
-        <div class="space-y-3">
-            <input id="in-user" placeholder="نام کاربری" class="w-full p-3 bg-gray-800 rounded border border-gray-700">
-            <input id="in-pass" type="password" placeholder="رمز عبور" class="w-full p-3 bg-gray-800 rounded border border-gray-700">
-            <textarea id="in-msg" placeholder="پیام شما..." class="w-full p-3 bg-gray-800 rounded border border-gray-700 h-24"></textarea>
-            
-            <div class="flex gap-2">
-                <button onclick="doAction('send')" class="flex-1 bg-green-600 p-3 rounded font-bold hover:bg-green-700">ارسال پیام</button>
-                <button onclick="doAction('inbox')" class="flex-1 bg-blue-600 p-3 rounded font-bold hover:bg-blue-700">مشاهده صندوق</button>
-            </div>
+        <div class="flex gap-2">
+            <button onclick="req('send')" class="flex-1 bg-green-700 p-2 rounded">ارسال</button>
+            <button onclick="req('inbox')" class="flex-1 bg-blue-700 p-2 rounded">مشاهده</button>
         </div>
-
-        <div id="out-box" class="space-y-3 pt-4 border-t border-gray-800"></div>
+        <div id="out" class="space-y-2 mt-4"></div>
     </div>
 
     <script>
-        const API_URL = 'https://main-db.abtin-sad1393.workers.dev';
-
-        async function doAction(type) {
-            const user = document.getElementById('in-user').value;
-            const pass = document.getElementById('in-pass').value;
-            const msg = document.getElementById('in-msg').value;
-
+        const API = 'https://main-db.abtin-sad1393.workers.dev'; 
+        
+        async function req(type) {
             const endpoint = type === 'send' ? '/api/send' : '/api/inbox';
+            const body = {
+                username: document.getElementById('user').value,
+                password: document.getElementById('pass').value,
+                message: document.getElementById('msg').value
+            };
             
             try {
-                const res = await fetch(API_URL + endpoint, {
+                const res = await fetch(API + endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: user, password: pass, message: msg })
+                    body: JSON.stringify(body)
                 });
-
                 const data = await res.json();
                 
                 if(data.error) {
-                    alert('خطا: ' + data.error);
-                } else if(type === 'inbox') {
-                    const box = document.getElementById('out-box');
-                    box.innerHTML = data.messages.map(m => `
-                        <div class="bg-gray-900 p-4 rounded border-r-4 border-blue-500 shadow">
-                            <p class="text-sm">${m.text}</p>
-                            <span class="text-[10px] text-gray-500 block mt-2">${m.date}</span>
-                        </div>
-                    `).join('');
+                    alert(data.error);
+                } else if(data.messages) {
+                    document.getElementById('out').innerHTML = data.messages.map(m => 
+                        `<div class="bg-gray-800 p-3 rounded text-sm">${m.text} <br> <span class="text-xs text-gray-400">${m.date}</span></div>`
+                    ).join('');
                 } else {
-                    alert('پیام با موفقیت ذخیره شد!');
+                    alert('پیام با موفقیت ارسال شد');
                 }
             } catch (err) {
-                alert('ارتباط با سرور برقرار نشد.');
+                alert('خطا در ارتباط با سرور: ' + err.message);
             }
         }
     </script>
