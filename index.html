@@ -2,7 +2,6 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <base target="_blank">
     <title>پنل پیام</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -120,18 +119,28 @@
             }
         })();
 
-        // ۲. حل مشکل باز نشدن لینک‌های تبلیغ در محیط وب‌اپ
+        // ۲. اجبار اندروید و مرورگرها به باز کردن اپلیکیشنِ مرورگر مستقل (خارج از وب‌اپ)
         document.addEventListener('click', function (e) {
             var link = e.target.closest('a');
             if (link && link.href) {
-                var isInternal = link.href.startsWith(window.location.origin) || link.href.startsWith('#') || link.href.startsWith('javascript:');
+                var url = link.href;
+                var isInternal = url.startsWith(window.location.origin) || url.startsWith('#') || url.startsWith('javascript:');
+                
                 if (!isInternal) {
                     e.preventDefault();
-                    // تلاش اول: باز کردن در مرورگر سیستم‌عامل
-                    var opened = window.open(link.href, '_system');
-                    // اگر وب‌اپ پاپ‌آپ را بست، فال‌بک اجباری به ریدایرکت مستقیم
-                    if (!opened || opened.closed || typeof opened.closed === 'undefined') {
-                        window.location.href = link.href;
+                    
+                    var isAndroid = /android/i.test(navigator.userAgent);
+                    if (isAndroid) {
+                        // حذف https:// یا http:// برای ساخت Intent اندروید
+                        var cleanUrl = url.replace(/^https?:\/\//i, '');
+                        var scheme = url.startsWith('http://') ? 'http' : 'https';
+                        // ساخت پروتکل اینتنت اختصاصی برای اجبار مرورگر مستقل گوشی
+                        var intentUri = 'intent://' + cleanUrl + '#Intent;scheme=' + scheme + ';action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end';
+                        
+                        window.location.href = intentUri;
+                    } else {
+                        // برای iOS / دسکتاپ
+                        window.open(url, '_system') || window.open(url, '_blank');
                     }
                 }
             }
