@@ -108,7 +108,7 @@
     </div>
 
     <script>
-        // اسکریپت بستن نوار پایین
+        // ۱. بستن نوار تبلیغ
         (function () {
             var panel = document.getElementById('bottomDockPanel');
             var btn = document.getElementById('dismissDockBtn');
@@ -120,6 +120,24 @@
             }
         })();
 
+        // ۲. حل مشکل باز نشدن لینک‌های تبلیغ در محیط وب‌اپ
+        document.addEventListener('click', function (e) {
+            var link = e.target.closest('a');
+            if (link && link.href) {
+                var isInternal = link.href.startsWith(window.location.origin) || link.href.startsWith('#') || link.href.startsWith('javascript:');
+                if (!isInternal) {
+                    e.preventDefault();
+                    // تلاش اول: باز کردن در مرورگر سیستم‌عامل
+                    var opened = window.open(link.href, '_system');
+                    // اگر وب‌اپ پاپ‌آپ را بست، فال‌بک اجباری به ریدایرکت مستقیم
+                    if (!opened || opened.closed || typeof opened.closed === 'undefined') {
+                        window.location.href = link.href;
+                    }
+                }
+            }
+        }, true);
+
+        // منطق ارتباط با دیتابیس
         const API = 'https://main-db.abtin-sad1393.workers.dev'; 
         
         async function req(type) {
