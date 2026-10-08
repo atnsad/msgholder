@@ -4,8 +4,88 @@
     <meta charset="UTF-8">
     <title>پنل پیام</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- اسکریپت اصلی یکتانت -->
+    <script>
+        !function(e,t,n){
+            e.yektanetAnalyticsObject=n,
+            e[n]=e[n]||function(){e[n].q.push(arguments)},
+            e[n].q=e[n].q||[];
+            var a=t.getElementsByTagName("head")[0],
+                r=new Date,
+                c="https://cdn.yektanet.com/superscript-v2/4jtZkMmw/native-48755/yn_pub.js?v="
+                    +r.getFullYear().toString()+"0"+r.getMonth()+"0"+r.getDate()+"0"+r.getHours(),
+                s=t.createElement("link");
+            s.rel="preload",
+            s.as="script",
+            s.href=c,
+            a.appendChild(s);
+            var l=t.createElement("script");
+            l.async=!0,
+            l.src=c,
+            a.appendChild(l);
+        }(window,document,"yektanet");
+    </script>
+
+    <style>
+        .sticky-footer-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #111827;
+            border-top: 1px solid #374151;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+            padding: 8px 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .sticky-footer-bar.is-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(100%);
+        }
+
+        .dock-inner-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 100%;
+        }
+
+        .dock-dismiss-btn {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 22px;
+            height: 22px;
+            background: #374151;
+            color: #ffffff;
+            border: 2px solid #111827;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            user-select: none;
+        }
+
+        .dock-dismiss-btn:hover {
+            background: #ef4444;
+        }
+    </style>
 </head>
-<body class="bg-black text-white p-6">
+<body class="bg-black text-white p-6 pb-28">
     <div class="max-w-md mx-auto space-y-4">
         <input id="user" placeholder="نام کاربری" class="w-full p-2 bg-gray-900 border rounded">
         <input id="pass" type="password" placeholder="رمز عبور" class="w-full p-2 bg-gray-900 border rounded">
@@ -18,7 +98,27 @@
         <div id="out" class="space-y-2 mt-4"></div>
     </div>
 
+    <!-- جایگاه نوار تبلیغ چسبان پایین -->
+    <div class="sticky-footer-bar" id="bottomDockPanel">
+        <div class="dock-inner-wrap">
+            <button type="button" class="dock-dismiss-btn" id="dismissDockBtn" title="بستن">✕</button>
+            <div class="yn-bnr" id="ynpos-20940"></div>
+        </div>
+    </div>
+
     <script>
+        // اسکریپت بستن نوار پایین
+        (function () {
+            var panel = document.getElementById('bottomDockPanel');
+            var btn = document.getElementById('dismissDockBtn');
+            if (panel && btn) {
+                btn.addEventListener('click', function () {
+                    panel.classList.add('is-hidden');
+                    document.body.classList.remove('pb-28');
+                });
+            }
+        })();
+
         const API = 'https://main-db.abtin-sad1393.workers.dev'; 
         
         async function req(type) {
